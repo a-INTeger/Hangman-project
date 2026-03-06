@@ -233,8 +233,25 @@ def saveScore(score):
     print("Result saved successfully!")
     main()
 
+def printScores():
+    data = []
+    try:
+        with open("results.txt", "r") as f:
+            data = f.readlines()
+    except:
+        print("-" * LINE_SIZE + "\n\nNO RESULTS FILE DETECTED\n\n" + "-" * LINE_SIZE)
 
-    
+    if len(data) > 0:
+        properScores = [line.strip().split(",") for line in data]
+        properScores = list(map(lambda x: [x[0], int(x[1])], properScores))
+
+        properScores.sort(key=lambda x: x[1], reverse=True)
+        for i in range(3):
+            print(f"{i+1}. {properScores[i][0]:<20} Score: {properScores[i][1]:>4}")
+    else:
+        print("-" * LINE_SIZE + "\n\nNO SCORES DETECTED\n\n" + "-" * LINE_SIZE)
+
+    main()
 
 
 def main():
@@ -247,7 +264,7 @@ def main():
 
         saveScore(finalScore)
     elif choice == 2:
-        pass
+        printScores()
     else:
         print("See you next time!")
         sys.exit(0)
