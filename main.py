@@ -13,7 +13,7 @@ args = parser.parse_args()
 
 # ALL DEFAULT VALUES GO HERE
 # define the default file for whenever no file argument is provided
-DEFAULT_FILE = "google-10000-english-no-swears.txt"
+DEFAULT_FILE = "WORDBANK.txt"
 
 # Hangman ASCII art
 HANGMANPICS = [r'''
@@ -270,17 +270,15 @@ def saveScore(score):
     print()
     # write to the results file (will create the file if it doesn't exist)
     if args.file:
-        with open(f"results-{args.file}.txt", "r") as f:
+        with open(f"results-{args.file}.txt", "a") as f:
             f.write(username + "," + str(score) + "\n")
     else:
-        with open("results.txt", "r") as f:
+        with open("results.txt", "a") as f:
             f.write(username + "," + str(score) + "\n")
     
     # let the user know that it has been saved successfully
     print("Result saved successfully!")
     print()
-    # head back to the main menu
-    main()
 
 def printScores():
     '''Displays the top 3 scores to the user'''
@@ -318,23 +316,24 @@ def printScores():
         # let the user know there are no scores detected
         print("-" * LINE_SIZE + "\n\nNO SCORES DETECTED\n\n" + "-" * LINE_SIZE)
 
-    # return to the main menu
-    main()
-
-
 def main():
     '''Entry point for the entire hangman game'''
     choice = mainMenu()
-    if choice == 1:
-        # setup the wordBank
-        wordbank = setupWordbank()
-        # Start the game
-        finalScore = playGame(wordbank)
-        # allow the user to save the score
-        saveScore(finalScore)
-    elif choice == 2:
-        printScores()
+    # keep looping if we dont want to quit
+    while choice != 3:
+        if choice == 1:
+            # setup the wordBank
+            wordbank = setupWordbank()
+            # Start the game
+            finalScore = playGame(wordbank)
+            # allow the user to save the score
+            saveScore(finalScore)
+        elif choice == 2:
+            printScores()
+        
+        choice = mainMenu()
     else:
+        # print clean exit message
         print("See you next time!")
         sys.exit(0)
 
