@@ -1,4 +1,5 @@
 # HANGMAN
+If you are reading this locally, please read on github (https://github.com/a-INTeger/Hangman-project) for better clarity.<br>
 Guess the letters and then the word for a simple game of hangman,
 keep going until you fail to rack up a ton of score and compete for a highscore!
 
@@ -21,8 +22,9 @@ python main.py
 python main.py -f custom_wordbank.txt
 ```
 
-## Rules
-- Each turn, the player must either guess a letter or the word.
+## How to play
+- At the start a random word is pulled from the wordbank 
+- Each turn, the player must either guess a letter in the word selected or the word itself.
 - For each letter occurance correct score will be awarded.
 - If the letter is not in the word, the number of incorrect guesses increases and thus the drawing of the hangman progresses.
 - If the number of incorrect guesses exceeds 7 (when the drawing is complete) the game is over and the player will be asked to record their score.
@@ -31,7 +33,7 @@ python main.py -f custom_wordbank.txt
 
 ### Scoring
 - +5 per letter occurance in the word (i.e. for the word lychee, the letter e would give a score of 10).
-- A bonus score given by:
+- To incentivize guessing the full word without using a significant number of guesses. A bonus score is given by the following formula:
 $$
     BONUSSCORE = \Bigl\lfloor \frac{100}{1+e^{(0.2(NoOfGuess - 13))}} \Bigr\rfloor
 $$
