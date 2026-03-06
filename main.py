@@ -119,15 +119,77 @@ def setupWordbank():
         print(f"ERROR: THE FILE {args.file} YOU SPECIFIED DOES NOT EXIST")
         sys.exit(-1)
 
+
+def obscureWord(word):
+    return "*" * len(word)
+
+def playerGuess(word, priorGuess):
+    flag = False
+    while not flag:
+        try:
+            guess = input("What is your guess? (Single letter or full word)\n>> ")
+        except KeyboardInterrupt:
+            print("\nSee you next time!")
+            sys.exit(0)
+
+        # check whether the guess only contains characters
+        if not guess.isalpha():
+            print("\nThat was not a letter or a word!\nPlease try again.\n")
+        elif len(guess) != 1 and len(guess) != len(word):
+            print("\nThat was not a single letter nor a word guess\nPlease try again.\n")
+        elif guess in priorGuess:
+            print("\nYou've already guessed that letter/word!\nPlease try again.\n")
+        else:
+            flag = True
+    
+    priorGuess.append(guess)
+    return guess
+
+def updateWord(chosenWord, maskedWord, guess):
+    # check whether guess is word
+    if len(guess) != len(chosenWord):
+        # check if guess is in the word
+        if guess in chosenWord:
+            # count all indices with guess 
+            idxs = [i for i, v in enumerate(chosenWord) if v == guess]
+            maskedWordList = list(maskedWord)
+            for i in idxs:
+                maskedWordList[i] = guess
+            return "".join(maskedWordList)
+        else:
+            print("incorrect guess")
+    else:
+        if guess == chosenWord:
+            print("YOU WIN!!!!")
+            maskedWord = chosenWord
+        else:
+            print("Incorrect Guess, score lost")
+    return maskedWord
+
+
+def playGame(wordbank):
+    # choose random number to select word from wordbank
+    randomIndex = random.randint(0, len(wordbank))
+    chosenWord = wordbank[randomIndex]
+    
+    priorGuesses = []
+    maskedWord = obscureWord(chosenWord)
+    while (maskedWord != chosenWord):
+        print(chosenWord + "\n" + maskedWord)
+        guess = playerGuess(maskedWord, priorGuesses)
+        maskedWord = updateWord(chosenWord, maskedWord, guess)
+
+
 # MAIN GAME LOOP
 if __name__ == "__main__":
     choice = mainMenu()
     if choice == 1:
-        pass
+        # setup the wordBank
+        wordbank = setupWordbank()
+        # Start the game
+        playGame(wordbank)
     elif choice == 2:
         pass
     else:
         print("See you next time!")
         sys.exit(0)
-
-    
