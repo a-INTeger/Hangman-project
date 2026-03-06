@@ -84,7 +84,7 @@ def mainMenu():
     while not flag:
         # try to catch a keyboard interrupt to exit gracefully
         try:
-            choice = input("What would you like to do?\n>> ")
+            choice = input("What would you like to do? (Input number corresponding to main menu)\n>> ")
         except KeyboardInterrupt:
             print("\nSee you next time!")
             sys.exit(0)
@@ -207,7 +207,7 @@ def playGame(wordbank):
 
     while tryAgain:
         # choose random number to select word from wordbank
-        randomIndex = random.randint(0, len(wordbank))
+        randomIndex = random.randint(0, len(wordbank) - 1)
         chosenWord = wordbank[randomIndex]
         incorrectGuesses =  0
         
@@ -231,9 +231,12 @@ def playGame(wordbank):
             score += int(100 / (1 + E ** (0.2 * (len(priorGuesses) - 13))))
 
             # allow the user to try again for more score
+            print()
             print("You got the word right! The word was:", chosenWord)
-            print("Want to try again?")
             print("Your current score is:", score)
+            print("Want to keep going for more score?")
+            print()
+
             try:
                 choice = input("(Y/y = yes, otherwise no)>> ")
             except KeyboardInterrupt:
@@ -246,9 +249,11 @@ def playGame(wordbank):
                 tryAgain = False
         else:
             # player lost forcefully terminate main game loop
+            print()
             print("Sorry you got too many guesses wrong and your run has ended")
             print("The word was", chosenWord)
             print("Your final score is:", score)
+            print()
             tryAgain = False
         
     return score
@@ -256,18 +261,24 @@ def playGame(wordbank):
 def saveScore(score):
     '''Saves score to a results.txt file'''
     # allow user to give their name to save it in the txt file
+    print()
     print("Congrats you got a new score! Enter your name to save it")
     try:
         username = input("Enter your name>> ")
     except KeyboardInterrupt:
         print("See you next time! Your score has not been saved")
-
+    print()
     # write to the results file (will create the file if it doesn't exist)
-    with open("results.txt", "a") as f:
-        f.write(username + "," + str(score) + "\n")
+    if args.file:
+        with open(f"results-{args.file}.txt", "r") as f:
+            f.write(username + "," + str(score) + "\n")
+    else:
+        with open("results.txt", "r") as f:
+            f.write(username + "," + str(score) + "\n")
     
     # let the user know that it has been saved successfully
     print("Result saved successfully!")
+    print()
     # head back to the main menu
     main()
 
@@ -278,8 +289,12 @@ def printScores():
 
     # ensure that the file we are trying to read exists
     try:
-        with open("results.txt", "r") as f:
-            data = f.readlines()
+        if args.file:
+            with open(f"results-{args.file}.txt", "r") as f:
+                data = f.readlines()
+        else:
+            with open("results.txt", "r") as f:
+                data = f.readlines()
     except:
         # tell the user that the file doesnt exist if they try to run this before saving any scores
         print("-" * LINE_SIZE + "\n\nNO RESULTS FILE DETECTED\n\n" + "-" * LINE_SIZE)
@@ -292,9 +307,13 @@ def printScores():
         properScores = list(map(lambda x: [x[0], int(x[1])], properScores))
         # sort the values in descending order
         properScores.sort(key=lambda x: x[1], reverse=True)
-        # print out the top 3 results
-        for i in range(3):
+        # print out the top 3 results or fewer whichever is less
+        print()
+        print("-"*LINE_SIZE)
+        for i in range(3 if len(data) >= 3 else len(data)):
             print(f"{i+1}. {properScores[i][0]:<20} Score: {properScores[i][1]:>4}")
+        print("-"*LINE_SIZE)
+        print()
     else:
         # let the user know there are no scores detected
         print("-" * LINE_SIZE + "\n\nNO SCORES DETECTED\n\n" + "-" * LINE_SIZE)
@@ -304,6 +323,7 @@ def printScores():
 
 
 def main():
+    '''Entry point for the entire hangman game'''
     choice = mainMenu()
     if choice == 1:
         # setup the wordBank
@@ -318,6 +338,6 @@ def main():
         print("See you next time!")
         sys.exit(0)
 
-# MAIN GAME LOOP
+# run only main() on python execution
 if __name__ == "__main__":
     main()
