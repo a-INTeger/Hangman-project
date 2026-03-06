@@ -270,7 +270,7 @@ def saveScore(score):
     print()
     # write to the results file (will create the file if it doesn't exist)
     if args.file:
-        with open(f"results-{args.file}.txt", "a") as f:
+        with open(f"results-{args.file[:-4]}.txt", "a") as f:
             f.write(username + "," + str(score) + "\n")
     else:
         with open("results.txt", "a") as f:
