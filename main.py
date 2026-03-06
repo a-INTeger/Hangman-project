@@ -11,9 +11,11 @@ parser = argparse.ArgumentParser(
 parser.add_argument("-f", "--file", help="File containing wordbank, by default will use the provided WORDBANK.txt")
 args = parser.parse_args()
 
+# ALL DEFAULT VALUES GO HERE
 # define the default file for whenever no file argument is provided
 DEFAULT_FILE = "google-10000-english-no-swears.txt"
 
+# Hangman ASCII art
 HANGMANPICS = [r'''
        
        
@@ -72,6 +74,7 @@ HANGMANPICS = [r'''
       |
 =========''']
 
+# Line size for sperating barriers
 LINE_SIZE = 64
 def mainMenu():
     '''Outputs the main menu and returns the users choice of value'''
@@ -129,11 +132,16 @@ def setupWordbank():
 
 
 def obscureWord(word):
+    '''Obscures a word with asterisks'''
     return "*" * len(word)
 
 def playerGuess(word, priorGuess):
+    '''Handles player guess inputs'''
+
+    # flag for input validation
     flag = False
     while not flag:
+        # catch keyboard interrupts if they occur mid-input
         try:
             guess = input("What is your guess? (Single letter or full word)\n>> ")
         except KeyboardInterrupt:
@@ -143,17 +151,23 @@ def playerGuess(word, priorGuess):
         # check whether the guess only contains characters
         if not guess.isalpha():
             print("\nThat was not a letter or a word!\nPlease try again.\n")
+        # check whether guess is not a letter or a word guess
         elif len(guess) != 1 and len(guess) != len(word):
             print("\nThat was not a single letter nor a word guess\nPlease try again.\n")
+        # check if the guess has already been guessed
         elif guess in priorGuess:
             print("\nYou've already guessed that letter/word!\nPlease try again.\n")
         else:
+            # trip flag and progress
             flag = True
     
+    # add to prior guesses
     priorGuess.append(guess)
     return guess
 
 def updateWord(chosenWord, maskedWord, guess, incorrectGuesses, score):
+    '''Updates a given word when a guess has been made and returns the new masked word and score'''
+
     # check whether guess is word
     if len(guess) != len(chosenWord):
         # check if guess is in the word
@@ -161,96 +175,131 @@ def updateWord(chosenWord, maskedWord, guess, incorrectGuesses, score):
             # count all indices with guess 
             idxs = [i for i, v in enumerate(chosenWord) if v == guess]
             maskedWordList = list(maskedWord)
+            #  updates the masked word
             for i in idxs:
                 maskedWordList[i] = guess
+                # add our 5 points per letter occurance correct
                 score += 5
             return "".join(maskedWordList), incorrectGuesses, score
         else:
-            print("incorrect guess")
+            # incorrect guess add to incorrect guesses
+            print("Sorry", guess, "is not part of the word")
             incorrectGuesses += 1
             return maskedWord, incorrectGuesses, score
     else:
+        # correct word guess
         if guess == chosenWord:
+            # complete the whole thing
             return chosenWord, incorrectGuesses, score
         else:
-            print("Incorrect Guess, score lost")
+            # incorrect full word guess
+            print("Sorry", guess, "is not the word")
             incorrectGuesses += 1
             return maskedWord, incorrectGuesses, score
 
 def playGame(wordbank):
-    totalScore = 0
+    '''Core game loop function'''
+    # track total score
+    score = 0
+    
+    # try again flag to keep replaying
     tryAgain = True
+
     while tryAgain:
         # choose random number to select word from wordbank
         randomIndex = random.randint(0, len(wordbank))
         chosenWord = wordbank[randomIndex]
-        incorrectGuesses, score = 0, 0
+        incorrectGuesses =  0
         
+        # setup game displays
         priorGuesses = []
         maskedWord = obscureWord(chosenWord)
+        # failure conditions for guess loop
         while (maskedWord != chosenWord) and incorrectGuesses < 7:
+            # print the current game stat for the user
             print("-"*LINE_SIZE)
             print(HANGMANPICS[incorrectGuesses])
             print("WORD TO GUESS:",  maskedWord)
-            print(chosenWord)
             print("Past Guesses:", ", ".join(priorGuesses))
             print("-"*LINE_SIZE)
             guess = playerGuess(maskedWord, priorGuesses)
             maskedWord, incorrectGuesses, score = updateWord(chosenWord, maskedWord, guess, incorrectGuesses, score)
 
-        
+        # once out of the core game loop
         if incorrectGuesses < 7:
+            # add bonus score for getting the word correct
             score += int(100 / (1 + E ** (0.2 * (len(priorGuesses) - 13))))
-            print("YOU WIN!!!! want to try again?")
+
+            # allow the user to try again for more score
+            print("You got the word right! The word was:", chosenWord)
+            print("Want to try again?")
             print("Your current score is:", score)
             try:
                 choice = input("(Y/y = yes, otherwise no)>> ")
             except KeyboardInterrupt:
                 print("See you next time!")
+            
+            # set the try again flag to restart game
             if choice.lower() == "y":
                 tryAgain = True
             else:
                 tryAgain = False
         else:
-            print("YOU LOST!!!")
-            print("Your current score is:", score)
+            # player lost forcefully terminate main game loop
+            print("Sorry you got too many guesses wrong and your run has ended")
+            print("The word was", chosenWord)
+            print("Your final score is:", score)
             tryAgain = False
         
-        totalScore += score
-    return totalScore
+    return score
 
 def saveScore(score):
     '''Saves score to a results.txt file'''
+    # allow user to give their name to save it in the txt file
     print("Congrats you got a new score! Enter your name to save it")
     try:
         username = input("Enter your name>> ")
     except KeyboardInterrupt:
         print("See you next time! Your score has not been saved")
 
+    # write to the results file (will create the file if it doesn't exist)
     with open("results.txt", "a") as f:
         f.write(username + "," + str(score) + "\n")
     
+    # let the user know that it has been saved successfully
     print("Result saved successfully!")
+    # head back to the main menu
     main()
 
 def printScores():
+    '''Displays the top 3 scores to the user'''
+    # temp data var for later output
     data = []
+
+    # ensure that the file we are trying to read exists
     try:
         with open("results.txt", "r") as f:
             data = f.readlines()
     except:
+        # tell the user that the file doesnt exist if they try to run this before saving any scores
         print("-" * LINE_SIZE + "\n\nNO RESULTS FILE DETECTED\n\n" + "-" * LINE_SIZE)
 
+    # check if we have no data either no file or no data lines
     if len(data) > 0:
+        # preprocess the data, each line needs characters stripped and then split by comma
         properScores = [line.strip().split(",") for line in data]
+        # then our score part needs to be casted to int
         properScores = list(map(lambda x: [x[0], int(x[1])], properScores))
-
+        # sort the values in descending order
         properScores.sort(key=lambda x: x[1], reverse=True)
+        # print out the top 3 results
         for i in range(3):
             print(f"{i+1}. {properScores[i][0]:<20} Score: {properScores[i][1]:>4}")
     else:
+        # let the user know there are no scores detected
         print("-" * LINE_SIZE + "\n\nNO SCORES DETECTED\n\n" + "-" * LINE_SIZE)
 
+    # return to the main menu
     main()
 
 
@@ -261,7 +310,7 @@ def main():
         wordbank = setupWordbank()
         # Start the game
         finalScore = playGame(wordbank)
-
+        # allow the user to save the score
         saveScore(finalScore)
     elif choice == 2:
         printScores()
