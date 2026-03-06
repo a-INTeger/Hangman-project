@@ -37,3 +37,5 @@ python main.py -f custom_wordbank.txt
 $$
     BONUSSCORE = \Bigl\lfloor \frac{100}{1+e^{(0.2(NoOfGuess - 13))}} \Bigr\rfloor
 $$
+
+**NOTE: If you are using a custom wordbank, results will be saved to a seperate file for fair competition**
