@@ -292,6 +292,7 @@ def saveScore(score):
         username = input("Enter your name>> ")
     except KeyboardInterrupt:
         print("See you next time! Your score has not been saved")
+        sys.exit(-1)
     print()
     # write to the results file (will create the file if it doesn't exist)
     if args.file:
@@ -314,7 +315,7 @@ def printScores():
     # ensure that the file we are trying to read exists
     try:
         if args.file:
-            with open(f"results-{args.file}.txt", "r") as f:
+            with open(f"results-{args.file[:-4]}.txt", "r") as f:
                 data = f.readlines()
         else:
             with open("results.txt", "r") as f:
