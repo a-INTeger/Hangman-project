@@ -4,8 +4,8 @@ Guess the letters and then the word for a simple game of hangman,
 keep going until you fail to rack up a ton of score and compete for a highscore!
 
 Credits for:
-- The wordbank: https://github.com/first20hours/google-10000-english
-- the hangman ascii: https://gist.github.com/chrishorton/8510732aa9a80a03c829b09f12e20d9c
+- Wordbank: https://github.com/first20hours/google-10000-english
+- Hangman ASCII: https://gist.github.com/chrishorton/8510732aa9a80a03c829b09f12e20d9c
 
 ## Flowchart
 ![flowchart](./flowchart.png)
