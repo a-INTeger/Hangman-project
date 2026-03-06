@@ -113,8 +113,6 @@ def setupWordbank():
                 words = f.readlines()
                 # strip newlines off the words
                 words = list(map(lambda x: x.strip(), words))
-                # filter out words are less than 5 characters long
-                words = [word for word in words if len(word) > 4]
         else:
             # ... if not then choose the default file
             with open(DEFAULT_FILE, "r") as f:
